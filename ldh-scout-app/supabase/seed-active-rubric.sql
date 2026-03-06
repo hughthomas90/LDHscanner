@@ -1,0 +1,141 @@
+insert into rubric_versions (
+  version_name,
+  status,
+  rubric_json,
+  notes,
+  created_by,
+  activated_at
+) values (
+  'ldh-default-v1',
+  'active',
+  $$
+{
+  "rubric_version": "ldh-default-v1",
+  "description": "Default rubric for Lancet Digital Health preprint scouting",
+  "status": "active",
+  "weights": {
+    "fit": 0.6,
+    "impact": 0.25,
+    "contactability": 0.15
+  },
+  "thresholds": {
+    "auto_high_priority": 80,
+    "editor_review": 65,
+    "low_priority": 45
+  },
+  "fit": {
+    "topic_weights": {
+      "ai_ml_in_healthcare": 14,
+      "clinical_decision_support": 12,
+      "medical_imaging_ai": 11,
+      "diagnostics_prognostics_prediction": 12,
+      "telemedicine_virtual_care": 10,
+      "digital_therapeutics": 11,
+      "wearables_remote_monitoring": 10,
+      "digital_clinical_trials": 9,
+      "health_systems_engineering": 8,
+      "health_data_management_security": 7,
+      "public_health_digital_intervention": 10,
+      "global_health_digital_implementation": 10,
+      "clinical_genomics_precision_medicine": 8,
+      "robotics_biosensors_bionics": 6
+    },
+    "methodology_weights": {
+      "external_validation": 10,
+      "prospective_study": 10,
+      "multicentre_study": 8,
+      "randomised_evaluation": 12,
+      "implementation_in_real_workflow": 10,
+      "health_equity_analysis": 6,
+      "regulatory_or_safety_analysis": 6,
+      "open_code_or_open_model_card": 3
+    },
+    "penalties": {
+      "no_real_health_application": 12,
+      "toy_dataset_only": 10,
+      "pure_methods_without_clinical_context": 12,
+      "single_centre_small_sample": 6,
+      "marketing_or_product_promo_tone": 15,
+      "non_health_domain": 20
+    },
+    "keyword_boosts": [
+      {"pattern": "external validation|externally validated", "points": 6},
+      {"pattern": "prospective|pragmatic trial|cluster random", "points": 6},
+      {"pattern": "workflow|clinical workflow|implementation", "points": 4},
+      {"pattern": "fairness|equity|bias", "points": 3},
+      {"pattern": "low-resource|LMIC|global health", "points": 4},
+      {"pattern": "safety|regulatory|governance", "points": 3}
+    ],
+    "keyword_penalties": [
+      {"pattern": "benchmark only|simulation only|synthetic only", "points": 5},
+      {"pattern": "consumer wellness only", "points": 7}
+    ]
+  },
+  "impact": {
+    "signals": {
+      "top_institution": 8,
+      "strong_funder": 5,
+      "large_dataset": 7,
+      "multinational_dataset": 7,
+      "novel_task_or_population": 6,
+      "high_download_velocity": 5,
+      "linked_published_version": 3,
+      "clinically_actionable_endpoint": 8,
+      "policy_or_health_system_relevance": 6
+    },
+    "caps": {
+      "max_author_reputation_points": 8,
+      "max_usage_points": 6
+    }
+  },
+  "contactability": {
+    "signals": {
+      "public_corresponding_email": 10,
+      "orcid_present": 3,
+      "institutional_profile_found": 3,
+      "complete_affiliation": 4,
+      "multiple_public_contacts": 5
+    },
+    "penalties": {
+      "no_public_contact_found": 10,
+      "generic_contact_only": 3
+    }
+  },
+  "hard_filters": {
+    "exclude_if_already_published": false,
+    "exclude_non_english": false,
+    "exclude_animal_only_without_human_health_link": true,
+    "exclude_non_health_domain": true
+  },
+  "topic_taxonomy": [
+    "AI/ML in healthcare",
+    "Clinical decision support",
+    "Medical imaging AI",
+    "Diagnostics and prognostics",
+    "Telemedicine and virtual care",
+    "Digital therapeutics",
+    "Wearables and remote monitoring",
+    "Digital clinical trials",
+    "Health systems engineering",
+    "Health data management and security",
+    "Public health digital intervention",
+    "Global health implementation",
+    "Precision medicine and clinical genomics",
+    "Robotics, biosensors, and bionics"
+  ],
+  "explanation_templates": {
+    "high_priority": "High editorial priority because it is strongly in scope, has convincing study design signals, and includes usable public contact details.",
+    "review": "Worth editor review because it is plausibly in scope but one or more signals are mixed.",
+    "low_priority": "Currently low priority because fit, impact, or contactability signals are weak."
+  }
+}
+$$::jsonb,
+  'Initial active rubric',
+  'setup',
+  now()
+)
+on conflict (version_name) do update
+set status = excluded.status,
+    rubric_json = excluded.rubric_json,
+    notes = excluded.notes,
+    activated_at = excluded.activated_at;
