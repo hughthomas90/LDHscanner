@@ -1,7 +1,14 @@
 import { LoginForm } from "@/components/auth/login-form";
 import { Card } from "@/components/ui/card";
 
-export default function LoginPage() {
+type LoginPageProps = {
+  searchParams: Promise<Record<string, string | undefined>>;
+};
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const params = await searchParams;
+  const hasError = params.error === "auth_callback_failed";
+
   return (
     <main className="mx-auto flex min-h-screen max-w-6xl items-center px-4 py-12 lg:px-6">
       <div className="grid w-full gap-8 lg:grid-cols-[1.1fr,0.9fr]">
@@ -22,6 +29,12 @@ export default function LoginPage() {
             <p className="mt-2 text-sm text-slate-600">
               Use your invited email address. Supabase will send a secure magic link.
             </p>
+            {hasError ? (
+              <p className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                Sign-in failed. Check that your Supabase redirect URL matches this deployed domain, then request a new
+                magic link.
+              </p>
+            ) : null}
           </div>
           <div className="mt-6">
             <LoginForm />
