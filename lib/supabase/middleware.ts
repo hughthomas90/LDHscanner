@@ -13,10 +13,15 @@ export async function updateSession(request: NextRequest) {
     request
   });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return response;
+  }
+
+  try {
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -28,31 +33,33 @@ export async function updateSession(request: NextRequest) {
           });
         }
       }
+    });
+
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    const isAuthPage = request.nextUrl.pathname.startsWith("/login");
+    const isProtectedPage =
+      !isAuthPage &&
+      !request.nextUrl.pathname.startsWith("/auth") &&
+      !request.nextUrl.pathname.startsWith("/_next") &&
+      request.nextUrl.pathname !== "/favicon.ico";
+
+    if (!user && isProtectedPage) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
     }
-  );
 
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+    if (user && isAuthPage) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      return NextResponse.redirect(url);
+    }
 
-  const isAuthPage = request.nextUrl.pathname.startsWith("/login");
-  const isProtectedPage =
-    !isAuthPage &&
-    !request.nextUrl.pathname.startsWith("/auth") &&
-    !request.nextUrl.pathname.startsWith("/_next") &&
-    request.nextUrl.pathname !== "/favicon.ico";
-
-  if (!user && isProtectedPage) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
+    return response;
+  } catch {
+    return response;
   }
-
-  if (user && isAuthPage) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/";
-    return NextResponse.redirect(url);
-  }
-
-  return response;
 }
