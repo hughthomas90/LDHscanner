@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import type { Route } from "next";
 import { cn } from "@/lib/utils";
 
 type ButtonProps = {
   children: ReactNode;
   className?: string;
-  href?: string;
+  href?: Route;
   type?: "button" | "submit";
 };
 

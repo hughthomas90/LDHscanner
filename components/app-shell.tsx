@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import type { Route } from "next";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { Bell, ClipboardList, LayoutDashboard, Radar, Settings, Target } from "lucide-react";
@@ -12,7 +13,7 @@ const navItems = [
   { href: "/items", label: "Items", icon: ClipboardList },
   { href: "/watchlists", label: "Watchlists", icon: Target },
   { href: "/settings", label: "Settings", icon: Settings }
-];
+] as const satisfies ReadonlyArray<{ href: Route; label: string; icon: typeof LayoutDashboard }>;
 
 type AppShellProps = {
   children: ReactNode;
