@@ -2,13 +2,14 @@ import Link from "next/link";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { Card } from "@/components/ui/card";
 import { StatsCard } from "@/components/dashboard/stats-card";
-import { ItemsTable } from "@/components/items/items-table";
-import { getDashboardStats, getItems } from "@/lib/data";
+import { PreprintsTable } from "@/components/preprints/preprints-table";
+import { getDashboardStats, getPreprints, getSelectedPreprintIds } from "@/lib/data";
 
 export default async function DashboardPage() {
-  const [stats, items] = await Promise.all([
+  const [stats, preprints, selectedIds] = await Promise.all([
     getDashboardStats(),
-    getItems({ minFit: 60, minSolicitation: 50 })
+    getPreprints({ minFit: 60, minSolicitation: 50 }),
+    getSelectedPreprintIds()
   ]);
 
   return (
@@ -37,26 +38,30 @@ export default async function DashboardPage() {
             <p className="mt-1 text-sm text-slate-600">Jump straight into the slices your team will check most often.</p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Link className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700" href="/items?sourceType=preprint">
+            <Link className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700" href="/preprints">
               New preprints
             </Link>
-            <Link className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700" href="/items?sourceType=trial">
+            <Link className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700" href="/trials">
               Changed trials
             </Link>
-            <Link className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700" href="/items?editorialStatus=watching">
-              Watching
+            <Link className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700" href="/preprints?editorialStatus=watching">
+              Watching preprints
             </Link>
             <Link
               className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700"
-              href="/items?editorialStatus=contact_soon"
+              href="/trials?editorialStatus=contact_soon"
             >
-              Contact soon
+              Trials to contact
             </Link>
           </div>
         </div>
       </Card>
 
-      <ItemsTable items={items.slice(0, 12)} title="Priority queue" />
+      <PreprintsTable
+        items={preprints.slice(0, 6)}
+        selectedIds={selectedIds.filter((id) => preprints.slice(0, 6).some((item) => item.id === id))}
+        title="Priority preprints"
+      />
     </>
   );
 }

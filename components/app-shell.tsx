@@ -3,13 +3,14 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Bell, ClipboardList, LayoutDashboard, Radar, Settings, Target } from "lucide-react";
+import { Bell, FileSearch, FlaskConical, LayoutDashboard, Radar, Settings, Target } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/items", label: "Items", icon: ClipboardList },
+  { href: "/preprints", label: "Preprints", icon: FileSearch },
+  { href: "/trials", label: "Trials", icon: FlaskConical },
   { href: "/watchlists", label: "Watchlists", icon: Target },
   { href: "/settings", label: "Settings", icon: Settings }
 ];
@@ -46,7 +47,7 @@ export function AppShell({ children, userEmail }: AppShellProps) {
 
           <nav className="mt-8 space-y-2">
             {navItems.map(({ href, label, icon: Icon }) => {
-              const isActive = pathname === href;
+              const isActive = pathname === href || pathname.startsWith(`${href}/`);
 
               return (
                 <Link

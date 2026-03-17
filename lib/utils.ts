@@ -20,6 +20,22 @@ export function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
+export function formatRelativeDays(days: number | null, emptyLabel = "Unknown") {
+  if (days === null) {
+    return emptyLabel;
+  }
+
+  if (days < 0) {
+    return `${Math.abs(days)}d overdue`;
+  }
+
+  if (days === 0) {
+    return "Due today";
+  }
+
+  return `${days}d`;
+}
+
 export function badgeTone(status: string) {
   switch (status) {
     case "shortlisted":

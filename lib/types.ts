@@ -27,9 +27,39 @@ export type ItemRow = {
   company_hits: JsonValue[];
   editorial_status: string;
   editor_notes: string | null;
+  corresponding_author_name: string | null;
+  corresponding_author_email: string | null;
+  primary_investigator_name: string | null;
+  primary_investigator_email: string | null;
+  trial_enrollment: number | null;
   hash_fingerprint: string;
   created_at: string;
   updated_at: string;
+};
+
+export type ItemSnapshotRow = {
+  id: string;
+  item_id: string;
+  snapshot_at: string;
+  status: string | null;
+  primary_completion_date: string | null;
+  completion_date: string | null;
+  sponsor_name: string | null;
+  raw_payload: JsonValue;
+};
+
+export type PreprintRow = ItemRow & {
+  source_type: "preprint";
+};
+
+export type TrialRow = ItemRow & {
+  source_type: "trial";
+};
+
+export type TrialWithSnapshot = TrialRow & {
+  latest_snapshot: ItemSnapshotRow | null;
+  days_until_primary_completion: number | null;
+  days_until_completion: number | null;
 };
 
 export type DashboardStats = {
