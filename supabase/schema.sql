@@ -23,6 +23,11 @@ create table if not exists public.items (
     editorial_status in ('new', 'watching', 'shortlisted', 'contact_soon', 'contacted', 'ignored')
   ),
   editor_notes text,
+  corresponding_author_name text,
+  corresponding_author_email text,
+  primary_investigator_name text,
+  primary_investigator_email text,
+  trial_enrollment integer,
   hash_fingerprint text not null,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now()),
@@ -75,6 +80,13 @@ create table if not exists public.editor_actions (
   notes text
 );
 
+create table if not exists public.preprint_selections (
+  preprint_id uuid not null references public.items(id) on delete cascade,
+  editor_id uuid not null references auth.users(id) on delete cascade,
+  selected_at timestamptz not null default timezone('utc', now()),
+  primary key (preprint_id, editor_id)
+);
+
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
@@ -100,12 +112,14 @@ create index if not exists idx_snapshots_item_id on public.item_snapshots(item_i
 create index if not exists idx_watchlists_type on public.watchlists(list_type, is_active);
 create index if not exists idx_ingestion_runs_source on public.ingestion_runs(source_name, started_at desc);
 create index if not exists idx_editor_actions_item on public.editor_actions(item_id, action_at desc);
+create index if not exists idx_preprint_selections_editor on public.preprint_selections(editor_id, selected_at desc);
 
 alter table public.items enable row level security;
 alter table public.item_snapshots enable row level security;
 alter table public.watchlists enable row level security;
 alter table public.ingestion_runs enable row level security;
 alter table public.editor_actions enable row level security;
+alter table public.preprint_selections enable row level security;
 
 drop policy if exists "authenticated users can read items" on public.items;
 create policy "authenticated users can read items"
@@ -200,6 +214,35 @@ with check (auth.uid() = action_by);
 drop policy if exists "service role manages editor actions" on public.editor_actions;
 create policy "service role manages editor actions"
 on public.editor_actions
+for all
+to service_role
+using (true)
+with check (true);
+
+drop policy if exists "authenticated users can read own preprint selections" on public.preprint_selections;
+create policy "authenticated users can read own preprint selections"
+on public.preprint_selections
+for select
+to authenticated
+using (auth.uid() = editor_id);
+
+drop policy if exists "authenticated users can insert own preprint selections" on public.preprint_selections;
+create policy "authenticated users can insert own preprint selections"
+on public.preprint_selections
+for insert
+to authenticated
+with check (auth.uid() = editor_id);
+
+drop policy if exists "authenticated users can delete own preprint selections" on public.preprint_selections;
+create policy "authenticated users can delete own preprint selections"
+on public.preprint_selections
+for delete
+to authenticated
+using (auth.uid() = editor_id);
+
+drop policy if exists "service role manages preprint selections" on public.preprint_selections;
+create policy "service role manages preprint selections"
+on public.preprint_selections
 for all
 to service_role
 using (true)

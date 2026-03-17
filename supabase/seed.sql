@@ -30,6 +30,11 @@ insert into public.items (
   company_hits,
   editorial_status,
   editor_notes,
+  corresponding_author_name,
+  corresponding_author_email,
+  primary_investigator_name,
+  primary_investigator_email,
+  trial_enrollment,
   hash_fingerprint
 )
 values
@@ -53,6 +58,11 @@ values
     '[]'::jsonb,
     'shortlisted',
     'Good early signal for editorial commissioning.',
+    'Amelia Carter',
+    'amelia.carter@ox.ac.uk',
+    null,
+    null,
+    null,
     'fp_epmc_1001'
   ),
   (
@@ -74,6 +84,11 @@ values
     '["Imperial College London"]'::jsonb,
     '[]'::jsonb,
     'watching',
+    null,
+    'Daniel Hughes',
+    'daniel.hughes@imperial.ac.uk',
+    null,
+    null,
     null,
     'fp_medrxiv_2002'
   ),
@@ -97,6 +112,11 @@ values
     '["Google Health"]'::jsonb,
     'contact_soon',
     'Recruiting trial with industry involvement.',
+    null,
+    null,
+    'Priya Shah',
+    'priya.shah@ucl.ac.uk',
+    1240,
     'fp_nct05990001'
   ),
   (
@@ -119,6 +139,11 @@ values
     '[]'::jsonb,
     'new',
     null,
+    null,
+    null,
+    'Fiona McBride',
+    'f.mcbride@nhslothian.scot',
+    310,
     'fp_nct05990002'
   ),
   (
@@ -141,6 +166,11 @@ values
     '["Microsoft"]'::jsonb,
     'new',
     'Schema support for grants is already in place.',
+    null,
+    null,
+    null,
+    null,
+    null,
     'fp_nih_3001'
   )
 on conflict (source_name, source_id) do nothing;
